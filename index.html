@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Branches</title>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+</body>
+
+<style>
+    body {
+        height: 100vh;
+        width: 100vw;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    #canvas {
+        height: 100vh;
+        width: 100vw;
+        background-color: hsl(0, 0%, 2%);
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
+<script>
+    let xc = null;
+    let yc = null;
+    let xw = null;
+    let yw = null;
+    let angleFactor = 0.1;
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Refresh Canvas Size
+    AutoRefreshData();
+    window.addEventListener('resize', () => {
+      AutoRefreshData();
+    });    
+    function AutoRefreshData() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        xc = canvas.width / 2;
+        yc = canvas.height / 2;
+        xw = canvas.width;
+        yw = canvas.height;
+    }
+
+    if (xw/yw >= 1) {
+        setInterval(drawBranchesHor, 1000 / 60);
+    }
+    else if(xw/yw < 1) {
+        setInterval(drawBranchesVer, 1000 / 60);
+    }
+
+
+    function branch(x, y, length, angle, depth) {
+      if (depth === 0) {
+        return; // Abbruchbedingung für die Rekursion
+      }
+
+      // Farbverlauf von innen nach außen
+      let color = `hsl(${depth * 20}, 100%, 50%)`;
+      ctx.strokeStyle = color;
+
+      // Berechnen Sie die Endkoordinaten der Verzweigung
+      let endX = x + length * Math.cos(angle);
+      let endY = y + length * Math.sin(angle);
+
+      // Zeichnen Sie die Verzweigung
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(endX, endY);
+      ctx.lineWidth = 0.1;
+      ctx.stroke();
+
+      // Rekursiv zeichnen Sie die beiden Unterzweige
+      branch(endX, endY, length * 0.95, angle + angleFactor, depth - 1);
+      branch(endX, endY, length * 0.95, angle - angleFactor, depth - 1);
+    }
+
+    function drawBranchesHor() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        branch(xc, yc, yw*1/20, Math.PI * 0.5, 13);
+        branch(xc, yc, yw*1/20, -Math.PI * 0.5, 13);
+        angleFactor += 0.001;
+    }
+    function drawBranchesVer() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        branch(xc, yc, xw*1/20, Math.PI * 0.5, 13);
+        branch(xc, yc, xw*1/20, -Math.PI * 0.5, 13);
+        angleFactor += 0.001;
+    }
+</script>
+
+</html>
